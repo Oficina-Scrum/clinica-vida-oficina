@@ -3,13 +3,20 @@ window.ClinicParts = window.ClinicParts || {};
 ClinicParts.pacientes = ClinicParts.pacientes || {};
 ClinicParts.pacientes.formularioFront = {
   fields: [
-    // TODO_OFICINA: reconstruir cpf, convenioId conforme o PDF e o P.O.
     {
       key: "nome",
       label: "Nome completo",
       required: true,
       placeholder: "Ex.: Camila Almeida",
       wide: true,
+    },
+    {
+      key: "cpf",
+      label: "CPF",
+      required: true,
+      placeholder: "000.000.000-00",
+      mask: "cpf",
+      max: 14,
     },
     {
       key: "telefone",
@@ -29,6 +36,14 @@ ClinicParts.pacientes.formularioFront = {
       placeholder: "paciente@exemplo.com",
     },
     {
+      key: "convenioId",
+      label: "Convênio",
+      type: "select",
+      source: "convenios",
+      placeholder: "Particular (sem convênio)",
+      wide: true,
+    },
+    {
       key: "observacoes",
       label: "Observações administrativas",
       type: "textarea",
@@ -37,7 +52,11 @@ ClinicParts.pacientes.formularioFront = {
     },
   ],
   deletePreview(row, db) {
-    // TODO_OFICINA: identificar o registro, explicar os vínculos e pedir confirmação.
-    return "Confirmação de exclusão em desenvolvimento.";
+    const vinculos = (db.agendamentos || []).filter(
+      (a) => a.pacienteId === row.id,
+    ).length;
+    if (vinculos > 0)
+      return `${row.nome} possui ${vinculos} consulta(s) no histórico e não pode ser excluído(a). Para liberar um horário, cancele a consulta na agenda.`;
+    return `O cadastro de ${row.nome} (CPF ${ClinicUtils.cpfFormat(row.cpf)}) será removido permanentemente. Esta ação não pode ser desfeita.`;
   },
 };
